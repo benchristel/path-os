@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Page with disabled context menu</title>
+  </head>
+  <body>
+    <a href="#">Right-click me</a>
+    <script>
+document.body.oncontextmenu = () => false
+document.body.onmousedown = () => false
+    </script>
+  </body>
+</html>
