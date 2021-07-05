@@ -4,7 +4,9 @@ Path is an "operating system frontend" that runs in webkit
 browsers like Chrome and Safari. Its goal is to provide a
 desktop computing experience that can be _completely
 customized_ (visually and functionally) without modifying
-the host OS (e.g. macOS or Linux).
+the host OS (e.g. macOS or Linux), is portable across
+platforms and hardware, and does not require updates to
+continue working.
 
 This repository houses the collection of components that
 make up Path OS.
@@ -22,9 +24,13 @@ make up Path OS.
 - Clone this repository
 - Enable Chrome's developer mode
 - Load the extension in `extension/` as an unpacked extension
-- Run `server/bin/run` to start the server
+- Build the client: `(cd client && yarn && yarn run snowpack
+  build)` (assuming you already have node and yarn
+  installed)
+- Install Go, then run the server: `go run server/main.go`
 - Navigate to http://localhost:1234 in Chrome
-- For best results, fullscreen the browser window.
+- For best results, fullscreen the browser window and hide
+  the browser toolbar.
 
 Double-click anywhere or hit ctrl+shift+N to open a new
 PathOS window.
