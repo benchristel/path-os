@@ -2,11 +2,9 @@
 
 import * as React from "react"
 
-type Props = {|
+export function Timer(props: {|
   onTick: number => mixed,
-|}
-
-export function Timer(props: Props): React.Node {
+|}): React.Node {
   useAnimationFrame(props.onTick)
   return null
 }

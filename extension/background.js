@@ -19,7 +19,7 @@ function browser() {
   ]
 
   function isAllowed(header) {
-    const result = !blockedHeaders.includes(header.name)
+    const result = !blockedHeaders.includes(header.name.toLowerCase())
     console.log("isAllowed", header.name, result)
     return result
   }

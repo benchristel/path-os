@@ -39,11 +39,11 @@ const css = `
 
 ::-webkit-scrollbar-thumb:vertical {
   background:
-    linear-gradient(to bottom, #0000, #0001 5px, #0000 10px),
+    linear-gradient(to bottom, #0000, #0001 7px, #0000 14px),
     linear-gradient(to right, #6af 10%, #fff4 20%, #6af 30%, #9ef),
     linear-gradient(to bottom, #6af 5px, #6af0 10px),
     linear-gradient(to top, #6af 5px, #6af0 10px);
-  background-size: 100% 10px, 100% 100%, 100% 100%, 100% 100%;
+  background-size: 100% 14px, 100% 100%, 100% 100%, 100% 100%;
   background-repeat: repeat, no-repeat, no-repeat, no-repeat;
   border: 1px solid #ccc;
   box-sizing: border-box;
