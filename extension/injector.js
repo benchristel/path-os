@@ -21,7 +21,7 @@
 
   window.addEventListener("message", e => {
     if (!allowedMessageOrigins.includes(e.origin)) {
-      console.error("received message from unrecognized domain", e.origin, e.data)
+      console.error(`window at ${window.location.href} received message from unrecognized domain`, e.origin, e.data)
       return;
     }
 
