@@ -1,5 +1,7 @@
 # Path OS
 
+![screenshot of iana.org in a Path OS browser window](screenshot.png)
+
 Path is an "operating system frontend" that runs in webkit
 browsers like Chrome and Safari. Its goal is to provide a
 desktop computing experience that can:
@@ -62,6 +64,8 @@ knows what else lurking. So just don't.
 
 ## Development
 
+### Server
+
 Most of the time during development, you don't care about
 modifying the server code, and you'd like to have changes
 to the JavaScript code take effect quickly. This is
@@ -73,12 +77,31 @@ yarn run snowpack dev
 open http://localhost:8080
 ```
 
+### Typechecking
+
 Path OS uses Flow for JavaScript typechecking. To run it:
 
 ```
 cd client
 node_modules/.bin/flow
 ```
+
+### Tests
+
+To run the tests, navigate to http://localhost:8080/#/tests
+with the snowpack dev server running. If you keep this tab
+open, the tests will re-run automatically when you change a
+file!
+
+To run tests from the command line:
+
+```
+cd client
+yarn test
+```
+
+Note that this is about **100x slower** than running the
+tests in the browser, so it is only recommended for robots XD
 
 ## Writing Apps
 
