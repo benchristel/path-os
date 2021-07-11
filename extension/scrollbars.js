@@ -1,17 +1,11 @@
 const css = `
 ::-webkit-scrollbar {
-  background: linear-gradient(to right, #ccc, #fff 20%, #ddd);
-  cursor: default;
-}
-
-::-webkit-scrollbar {
-  background: linear-gradient(to bottom, #ccc, #fff 20%, #ddd);
+  background: linear-gradient(to right, #aaa, #fff 20%, #aaa);
   cursor: default;
 }
 
 ::-webkit-scrollbar-track:vertical {
-  background: linear-gradient(to right, #eee, #fff);
-  border-left: 1px solid #ccc;
+  background: linear-gradient(to right, #ccc, #fff);
   border-top: 1px solid #bbb;
   border-bottom: 1px solid #ddd;
   width: 16px;
@@ -24,11 +18,10 @@ const css = `
 }
 
 ::-webkit-scrollbar-track:horizontal {
-  background: linear-gradient(to bottom, #eee, #fff);
+  background: linear-gradient(to bottom, #ccc, #fff);
   border-top: 1px solid #ccc;
   border-left: 1px solid #bbb;
-  border-right: 1px solid #ddd;
-  width: 16px;
+  height: 16px;
   border-radius: 100px;
   box-shadow: inset 0 2px 3px #0002, inset -2px 0 3px #0003, inset 2px 0 3px #0003;
 }
@@ -45,7 +38,9 @@ const css = `
     linear-gradient(to top, #6af 5px, #6af0 10px);
   background-size: 100% 14px, 100% 100%, 100% 100%, 100% 100%;
   background-repeat: repeat, no-repeat, no-repeat, no-repeat;
-  border: 1px solid #ccc;
+  background-clip: content-box;
+  border: 1px solid transparent;
+  position: relative;
   box-sizing: border-box;
   box-shadow: inset 0 0 4px #004;
   min-height: 30px;

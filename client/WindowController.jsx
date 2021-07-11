@@ -12,20 +12,19 @@ import {
 
 function newWindow() {
   let x = 60, y = 60
+  let width = 1024, height = 600
   let screenWidth = 1024, screenHeight = 768
   return {
     nudge,
     getX, getY,
+    getWidth, getHeight,
     noticeScreenDimensions,
+    moveLeftEdge,
   }
 
   function nudge(dx: number, dy: number) {
     x += dx
     y += dy
-  }
-
-  function noticeScreenDimensions(width: number, height: number) {
-    screenWidth = width; screenHeight = height
   }
 
   function getX(): number {
@@ -35,10 +34,27 @@ function newWindow() {
   }
 
   function getY(): number {
-    if (y < MENU_BAR_HEIGHT_PX) return MENU_BAR_HEIGHT_PX
+    if (y <= MENU_BAR_HEIGHT_PX) return MENU_BAR_HEIGHT_PX
     const maxY = screenHeight - BOTTOM_LETTERBOX_HEIGHT_PX - 20
     if (y > maxY) return maxY
     return y
+  }
+
+  function getWidth(): number {
+    return width;
+  }
+
+  function getHeight(): number {
+    return height;
+  }
+
+  function noticeScreenDimensions(width: number, height: number) {
+    screenWidth = width; screenHeight = height
+  }
+
+  function moveLeftEdge(dx: number, dy: number) {
+    x += dx
+    width -= dx
   }
 }
 
@@ -46,11 +62,20 @@ export function WindowController(): React.Node {
   const [window, withUpdate] = useModel(newWindow)
   const [urlBar, setUrlBar] = useState("about:blank")
   useCrossFrameMessages(msg => {
-    if (msg.data.type === "document-metadata") {
-      // FIXME: check re: field to know which window this
-      // message is for. As of this writing the window is
-      // a singleton.
-      setUrlBar(msg.data.url)
+    switch (msg.data.type) {
+      case "document-metadata": {
+        // FIXME: check re: field to know which window this
+        // message is for. As of this writing the window is
+        // a singleton.
+        setUrlBar(msg.data.url)
+        break;
+      }
+      case "hover-link": {
+        break;
+      }
+      default: {
+        console.log("received cross-window message", msg)
+      }
     }
   })
 
@@ -66,7 +91,7 @@ export function WindowController(): React.Node {
       state: "loaded",
       urlBar: urlBar,
       iframe: {
-        src: "https://www.iana.org",
+        src: "http://web.archive.org/web/20050324091631/http://geocities.com:80/Athens/Crete/5555/ven.htm",
         nonce: 0,
         handleLoaded: establishCommsWithIframe,
         handleMetadata: doc => console.log("got page metadata", doc),
@@ -74,12 +99,13 @@ export function WindowController(): React.Node {
         handleHoverLink: url => console.log("hovered link", url),
         handleWillUnload: () => console.log("unloading")
       },
-      height: 600,
-      width: 1024,
+      height: window.getHeight(),
+      width: window.getWidth(),
       top: window.getY(),
       left: window.getX(),
     }}
     onMove={withUpdate(window.nudge)}
+    onMoveLeftEdge={withUpdate(window.moveLeftEdge)}
   />
 }
 
