@@ -9,17 +9,26 @@ import {
   MENU_BAR_HEIGHT_PX,
   BOTTOM_LETTERBOX_HEIGHT_PX,
 } from "./global-constants.js"
+import {test, expect, toEqual} from "./test-framework.js"
 
 function newWindow() {
   let x = 60, y = 60
   let width = 1024, height = 600
   let screenWidth = 1024, screenHeight = 768
+  let urlBar = ""
+  let url = "http://example.com"
+  let refreshNonce = 0
   return {
     nudge,
     getX, getY,
     getWidth, getHeight,
     noticeScreenDimensions,
     moveLeftEdge,
+    getUrlBarText,
+    changeUrlBarText,
+    navigate,
+    getRefreshNonce,
+    getLastEnteredUrl,
   }
 
   function nudge(dx: number, dy: number) {
@@ -56,18 +65,95 @@ function newWindow() {
     x += dx
     width -= dx
   }
+
+  function getUrlBarText(): string {
+    return urlBar
+  }
+
+  function changeUrlBarText(text: string) {
+    urlBar = text
+  }
+
+  function getLastEnteredUrl(): string {
+    return url
+  }
+
+  function getRefreshNonce(): number {
+    return refreshNonce
+  }
+
+  function navigate() {
+    console.log("navigating", urlBar)
+    url = httpify(urlBar)
+    refreshNonce++
+  }
 }
+
+function httpify(url: string): string {
+  const allowedSchemes = /^(https?|file):\/\//
+  if (allowedSchemes.test(url)) return url
+  return url.replace(/^(https?)?:?\/?\/?/, function(_, scheme) {
+    return (scheme || "http") + "://"
+  })
+}
+
+test("httpify", {
+  "passes through an http url unchanged"() {
+    expect(
+      httpify("http://google.com"),
+      toEqual("http://google.com"))
+  },
+  "passes through an https url unchanged"() {
+    expect(
+      httpify("https://google.com"),
+      toEqual("https://google.com"))
+  },
+  "adds http://"() {
+    expect(
+      httpify("example.com"),
+      toEqual("http://example.com"))
+  },
+  "adds http:// to an archive url"() {
+    expect(
+      httpify("archive.org/http://example.com"),
+      toEqual("http://archive.org/http://example.com"))
+  },
+  "adds http to a url starting with ://"() {
+    expect(
+      httpify("://example.com"),
+      toEqual("http://example.com"))
+  },
+  "allows file urls"() {
+    expect(
+      httpify("file:///foo/bar"),
+      toEqual("file:///foo/bar"))
+  },
+  "fixes a mistyped scheme separator"() {
+    expect(
+      httpify("http:example.com"),
+      toEqual("http://example.com"))
+  },
+  "fixes a mistyped https scheme separator"() {
+    expect(
+      httpify("https:example.com"),
+      toEqual("https://example.com"))
+  },
+  "infers http if there is no scheme before the separator"() {
+    expect(
+      httpify(":/example.com"),
+      toEqual("http://example.com"))
+  },
+})
 
 export function WindowController(): React.Node {
   const [window, withUpdate] = useModel(newWindow)
-  const [urlBar, setUrlBar] = useState("about:blank")
   useCrossFrameMessages(msg => {
     switch (msg.data.type) {
       case "document-metadata": {
         // FIXME: check re: field to know which window this
         // message is for. As of this writing the window is
         // a singleton.
-        setUrlBar(msg.data.url)
+        withUpdate(window.changeUrlBarText)(msg.data.url)
         break;
       }
       case "hover-link": {
@@ -89,21 +175,23 @@ export function WindowController(): React.Node {
     v={{
       id: "my-awesome-window",
       state: "loaded",
-      urlBar: urlBar,
+      urlBar: window.getUrlBarText(),
+      height: window.getHeight(),
+      width: window.getWidth(),
+      top: window.getY(),
+      left: window.getX(),
       iframe: {
-        src: "http://web.archive.org/web/20050324091631/http://geocities.com:80/Athens/Crete/5555/ven.htm",
-        nonce: 0,
+        src: window.getLastEnteredUrl(),
+        nonce: window.getRefreshNonce(),
         handleLoaded: establishCommsWithIframe,
         handleMetadata: doc => console.log("got page metadata", doc),
         handleActivateLink: url => console.log("clicked link", url),
         handleHoverLink: url => console.log("hovered link", url),
         handleWillUnload: () => console.log("unloading")
       },
-      height: window.getHeight(),
-      width: window.getWidth(),
-      top: window.getY(),
-      left: window.getX(),
     }}
+    onUrlEdited={withUpdate(window.changeUrlBarText)}
+    onNavigationRequested={withUpdate(window.navigate)}
     onMove={withUpdate(window.nudge)}
     onMoveLeftEdge={withUpdate(window.moveLeftEdge)}
   />

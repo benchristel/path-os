@@ -63,6 +63,8 @@ export function WindowView(props: {|
   v: WindowViewModel,
   onMove: (dx: number, dy: number) => mixed,
   onMoveLeftEdge: (dx: number, dHeight: number) => mixed,
+  onUrlEdited: string => mixed,
+  onNavigationRequested: () => mixed,
 |}): React.Node {
   const {v} = props
   const {width, height, top, left} = v
@@ -75,7 +77,10 @@ export function WindowView(props: {|
       <Handle onDrag={props.onMove}/>
       <input
         value={v.urlBar}
-        readOnly={true} // TEMPORARY; this just suppresses a React warning
+        onChange={e => props.onUrlEdited(e.target.value)}
+        onKeyDown={e => {
+          if (e.keyCode === 13) props.onNavigationRequested()
+        }}
         style={{width: "100%", boxSizing: "border-box"}}
       />
     </WindowHead>
