@@ -105,7 +105,6 @@ function textualize(t: Textualizable): string {
   if (t === undefined) return "undefined"
   if (t === null)      return "null"
 
-  if (t === undefined) return "undefined"
   return String(t)
 }
 
