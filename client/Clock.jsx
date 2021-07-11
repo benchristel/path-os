@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import {useRedraw} from "./useRedraw.js"
-import {Timer} from "./timer.js"
+import {Timer} from "./Timer.js"
 
 export function ClockController(): React.Node {
   const redraw = useRedraw()

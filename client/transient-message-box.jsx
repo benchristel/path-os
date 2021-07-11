@@ -6,7 +6,7 @@ import {useModel} from "./useModel.js"
 import type {Wrapper} from "./useModel.js"
 import {newSignal, emptySignal, newReceiver} from "./signal.js"
 import type {Signal, Receiver} from "./signal.js"
-import {Timer} from "./timer.js"
+import {Timer} from "./Timer.js"
 
 test("a transient message box", {
   "starts blank"() {
