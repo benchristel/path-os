@@ -7,6 +7,8 @@ import {WindowView} from "./WindowView.jsx"
 import {useModel} from "./useModel.js"
 import {httpify} from "./httpify.js"
 import {useCrossFrameMessages} from "./useCrossFrameMessages.js"
+import {newSignal} from "./signal.js"
+import type {Signal} from "./signal.js"
 import {
   MENU_BAR_HEIGHT_PX,
   BOTTOM_LETTERBOX_HEIGHT_PX,
@@ -17,8 +19,9 @@ function newWindow() {
   let width = 1024, height = 600
   let screenWidth = 1024, screenHeight = 768
   let urlBar = ""
-  let url = "http://example.com"
-  let refreshNonce = 0
+  // a signal that updates whenever the user jumps to a new
+  // page by typing in the URL bar and hitting "Return"
+  let navigationViaUrlBar = newSignal("http://example.com")
   return {
     nudge,
     getX, getY,
@@ -28,8 +31,7 @@ function newWindow() {
     getUrlBarText,
     changeUrlBarText,
     navigate,
-    getRefreshNonce,
-    getLastEnteredUrl,
+    getNavigationViaUrlBar,
   }
 
   function nudge(dx: number, dy: number) {
@@ -75,18 +77,13 @@ function newWindow() {
     urlBar = text
   }
 
-  function getLastEnteredUrl(): string {
-    return url
-  }
-
-  function getRefreshNonce(): number {
-    return refreshNonce
+  function getNavigationViaUrlBar(): Signal<string> {
+    return navigationViaUrlBar
   }
 
   function navigate() {
     console.log("navigating", urlBar)
-    url = httpify(urlBar)
-    refreshNonce++
+    navigationViaUrlBar = newSignal(httpify(urlBar))
   }
 }
 
@@ -126,8 +123,7 @@ export function WindowController(): React.Node {
       top: window.getY(),
       left: window.getX(),
       iframe: {
-        src: window.getLastEnteredUrl(),
-        nonce: window.getRefreshNonce(),
+        src: window.getNavigationViaUrlBar(),
         handleLoaded: establishCommsWithIframe,
         handleMetadata: doc => console.log("got page metadata", doc),
         handleActivateLink: url => console.log("clicked link", url),

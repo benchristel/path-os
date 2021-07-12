@@ -4,6 +4,7 @@ import * as React from "react"
 import {useRef, useState} from "react"
 import {css} from "emotion"
 import type {Wrapper} from "./useModel.js"
+import type {Signal} from "./signal.js"
 
 export type WindowViewModel =
   | BrandNew
@@ -18,8 +19,7 @@ type SizeAndPosition = {|
 |}
 
 type IFrameViewModel = {|
-  src: string,
-  nonce: number,
+  src: Signal<string>,
   handleLoaded: SyntheticEvent<HTMLIFrameElement> => mixed,
   handleMetadata: DocumentMetadata => mixed,
   handleWillUnload: () => mixed,
@@ -102,9 +102,10 @@ function WindowPane(props: {|
   height: number,
 |}): React.Node {
   const {iframe, height} = props
+  if (iframe.src.state === "empty") return null
   return <iframe
-    key={iframe.nonce}
-    src={iframe.src}
+    key={iframe.src.nonce}
+    src={iframe.src.data}
     className={css(styles.iframe)}
     style={{height}}
     onLoad={iframe.handleLoaded}
