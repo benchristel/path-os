@@ -5,11 +5,12 @@ import {useState, useRef} from "react"
 import {css} from "emotion"
 import {WindowView} from "./WindowView.jsx"
 import {useModel} from "./useModel.js"
+import {httpify} from "./httpify.js"
+import {useCrossFrameMessages} from "./useCrossFrameMessages.js"
 import {
   MENU_BAR_HEIGHT_PX,
   BOTTOM_LETTERBOX_HEIGHT_PX,
 } from "./global-constants.js"
-import {test, expect, toEqual} from "./test-framework.js"
 
 function newWindow() {
   let x = 60, y = 60
@@ -88,62 +89,6 @@ function newWindow() {
     refreshNonce++
   }
 }
-
-function httpify(url: string): string {
-  const allowedSchemes = /^(https?|file):\/\//
-  if (allowedSchemes.test(url)) return url
-  return url.replace(/^(https?)?:?\/?\/?/, function(_, scheme) {
-    return (scheme || "http") + "://"
-  })
-}
-
-test("httpify", {
-  "passes through an http url unchanged"() {
-    expect(
-      httpify("http://google.com"),
-      toEqual("http://google.com"))
-  },
-  "passes through an https url unchanged"() {
-    expect(
-      httpify("https://google.com"),
-      toEqual("https://google.com"))
-  },
-  "adds http://"() {
-    expect(
-      httpify("example.com"),
-      toEqual("http://example.com"))
-  },
-  "adds http:// to an archive url"() {
-    expect(
-      httpify("archive.org/http://example.com"),
-      toEqual("http://archive.org/http://example.com"))
-  },
-  "adds http to a url starting with ://"() {
-    expect(
-      httpify("://example.com"),
-      toEqual("http://example.com"))
-  },
-  "allows file urls"() {
-    expect(
-      httpify("file:///foo/bar"),
-      toEqual("file:///foo/bar"))
-  },
-  "fixes a mistyped scheme separator"() {
-    expect(
-      httpify("http:example.com"),
-      toEqual("http://example.com"))
-  },
-  "fixes a mistyped https scheme separator"() {
-    expect(
-      httpify("https:example.com"),
-      toEqual("https://example.com"))
-  },
-  "infers http if there is no scheme before the separator"() {
-    expect(
-      httpify(":/example.com"),
-      toEqual("http://example.com"))
-  },
-})
 
 export function WindowController(): React.Node {
   const [window, withUpdate] = useModel(newWindow)
@@ -258,16 +203,4 @@ function establishCommsWithIframe({currentTarget: target}) {
     extraArgs: [{replyTo: "my-awesome-window"}],
     code: "(" + injectedCode.toString() + ")"
   }, "*")
-}
-
-window.addEventListener("message", msg => {
-  // console.log("received message", msg)
-})
-
-function useCrossFrameMessages(onMessage) {
-  const listener = useRef(null)
-  window.removeEventListener("message", listener.current)
-  window.addEventListener("message", onMessage)
-  listener.current = onMessage
-  return () => window.removeEventListener("message", listener.current)
 }
