@@ -125,9 +125,6 @@ export function WindowController(): React.Node {
       iframe: {
         src: window.getNavigationViaUrlBar(),
         handleLoaded: establishCommsWithIframe,
-        handleMetadata: doc => console.log("got page metadata", doc),
-        handleActivateLink: url => console.log("clicked link", url),
-        handleHoverLink: url => console.log("hovered link", url),
         handleWillUnload: () => console.log("unloading")
       },
     }}

@@ -21,10 +21,7 @@ type SizeAndPosition = {|
 type IFrameViewModel = {|
   src: Signal<string>,
   handleLoaded: SyntheticEvent<HTMLIFrameElement> => mixed,
-  handleMetadata: DocumentMetadata => mixed,
   handleWillUnload: () => mixed,
-  handleActivateLink: (url: string) => mixed,
-  handleHoverLink: (url: string) => mixed,
 |}
 
 type DocumentMetadata = {|
