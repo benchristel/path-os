@@ -4,35 +4,19 @@ import * as React from "react"
 import {useRef, useState} from "react"
 import {css} from "emotion"
 import type {Wrapper} from "./useModel.js"
-import type {Signal} from "./signal.js"
+import type {NonEmptySignal} from "./signal.js"
 
 export type WindowViewModel =
   | BrandNew
   | Loading
   | Loaded
 
-type SizeAndPosition = {|
-  width: number,
-  height: number,
-  top: number,
-  left: number,
-|}
-
-type IFrameViewModel = {|
-  src: Signal<string>,
-  handleLoaded: SyntheticEvent<HTMLIFrameElement> => mixed,
-  handleWillUnload: () => mixed,
-|}
-
-type DocumentMetadata = {|
-  title: string,
-  url: string,
-|}
-
 type BrandNew = {|
   state: "brand-new",
   id: string,
   urlBar: string,
+  focused: boolean,
+  zIndex: number,
   ...SizeAndPosition,
 |}
 
@@ -40,6 +24,8 @@ type Loading = {|
   state: "loading",
   id: string,
   urlBar: string,
+  focused: boolean,
+  zIndex: number,
   iframe: IFrameViewModel,
   ...SizeAndPosition,
 |}
@@ -52,8 +38,28 @@ type Loaded = {|
   state: "loaded",
   id: string,
   urlBar: string,
+  focused: boolean,
+  zIndex: number,
   iframe: IFrameViewModel,
   ...SizeAndPosition,
+|}
+
+type SizeAndPosition = {|
+  width: number,
+  height: number,
+  top: number,
+  left: number,
+|}
+
+type IFrameViewModel = {|
+  src: NonEmptySignal<string>,
+  handleLoaded: SyntheticEvent<HTMLIFrameElement> => mixed,
+  handleWillUnload: () => mixed,
+|}
+
+type DocumentMetadata = {|
+  title: string,
+  url: string,
 |}
 
 export function WindowView(props: {|
@@ -62,27 +68,45 @@ export function WindowView(props: {|
   onMoveLeftEdge: (dx: number, dHeight: number) => mixed,
   onUrlEdited: string => mixed,
   onNavigationRequested: () => mixed,
+  onFocusRequested: (id: string) => mixed,
 |}): React.Node {
   const {v} = props
-  const {width, height, top, left} = v
+  const {width, height, top, left, zIndex} = v
 
   return <div
-    style={{width, top, left}}
+    style={{width, top, left, zIndex, position: ""}}
     className={css(styles.windowFrame)}
+    key={v.id}
   >
     <WindowHead>
-      <Handle onDrag={props.onMove}/>
+      <Handle
+        onDrag={props.onMove}
+      />
       <input
         value={v.urlBar}
         onChange={e => props.onUrlEdited(e.target.value)}
-        onKeyDown={e => {
-          if (e.keyCode === 13) props.onNavigationRequested()
-        }}
+        onKeyDown={e => e.keyCode === 13 && props.onNavigationRequested()}
         style={{width: "100%", boxSizing: "border-box"}}
       />
     </WindowHead>
-    {v.iframe && <WindowPane iframe={v.iframe} height={height}/>}
-    <LeftDragHandle height={height + 44} onDrag={dx => props.onMoveLeftEdge(dx, 0)}/>
+    <div style={{position: "relative"}}>
+      {
+        v.iframe && <WindowPane
+          iframe={v.iframe}
+          height={height}
+          focused={v.focused}
+        />
+      }
+      {
+        !v.focused && <ClickInterceptor
+          onClick={() => props.onFocusRequested(v.id)}
+        />
+      }
+    </div>
+    <LeftDragHandle
+      height={height + 44}
+      onDrag={dx => props.onMoveLeftEdge(dx, 0)}
+    />
   </div>
 }
 
@@ -97,9 +121,9 @@ function WindowHead(props: {|
 function WindowPane(props: {|
   iframe: IFrameViewModel,
   height: number,
+  focused: boolean,
 |}): React.Node {
-  const {iframe, height} = props
-  if (iframe.src.state === "empty") return null
+  const {iframe, height, focused} = props
   return <iframe
     key={iframe.src.nonce}
     src={iframe.src.data}
@@ -114,6 +138,17 @@ function WindowPane(props: {|
       "allow-scripts",
       "allow-same-origin",
     ].join(" ")}
+  />
+}
+
+function ClickInterceptor(props: {|onClick: () => mixed|}): React.Node {
+  return <div
+    onClick={props.onClick}
+    style={{
+      position: "absolute",
+      inset: 0,
+      top: -44,
+    }}
   />
 }
 
@@ -174,7 +209,6 @@ const styles = {
     top: 0;
     left: -4px;
     width: 7px;
-    z-index: 100;
     cursor: ew-resize;
   `,
 }

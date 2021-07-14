@@ -1,7 +1,7 @@
 // @flow
 import * as React from "react"
 import {css} from "emotion"
-import {WindowController} from "./WindowController.jsx"
+import {WindowStackController} from "./WindowController.jsx"
 import {
   MENU_BAR_HEIGHT_PX,
   BOTTOM_LETTERBOX_HEIGHT_PX,
@@ -11,7 +11,7 @@ import {ClockController} from "./Clock.jsx"
 export function PathOs(): React.Node {
   return <>
     <main className={desktop}>
-      <WindowController/>
+      <WindowStackController/>
     </main>
     <header id="menu-bar">
       <div className="menu-top-level menu-item">

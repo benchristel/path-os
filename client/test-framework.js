@@ -97,6 +97,24 @@ export function toEqual<T: Textualizable>(expected: T): Matcher<T> {
   return matches
 }
 
+export function toMatch(regex: RegExp): Matcher<string> {
+  function matches(actual: string): boolean {
+    return regex.test(actual)
+  }
+  matches.verb = "to match"
+  matches.expected = regex
+  return matches
+}
+
+export function not<T: Textualizable>(matcher: Matcher<T>): Matcher<T> {
+  function matches(actual: T): boolean {
+    return !matcher(actual)
+  }
+  matches.verb = "not " + matcher.verb
+  matches.expected = matcher.expected
+  return matches
+}
+
 function textualize(t: Textualizable): string {
   if (typeof t === "string")  return `"${escape(t)}"`
   if (typeof t === "number")  return String(t)

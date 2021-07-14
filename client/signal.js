@@ -23,18 +23,20 @@
 
 let clock: number = 0
 
-export type Signal<T> = EmptySignal<T> | $ReadOnly<{|
-  state: "data",
-  data: T,
-  nonce: number,
-  max: Signal<T> => Signal<T>,
-  isAfter: Signal<T> => boolean,
-|}>
+export type Signal<T> = EmptySignal<T> | NonEmptySignal<T>
 
 export type EmptySignal<T> = $ReadOnly<{|
   state: "empty",
   max: Signal<T> => Signal<T>,
   isAfter: Signal<T> => false,
+|}>
+
+export type NonEmptySignal<T> = $ReadOnly<{|
+  state: "data",
+  data: T,
+  nonce: number,
+  max: Signal<T> => Signal<T>,
+  isAfter: Signal<T> => boolean,
 |}>
 
 export function emptySignal<T>(): Signal<T> {
@@ -54,7 +56,7 @@ export function emptySignal<T>(): Signal<T> {
   }
 }
 
-export function newSignal<T>(data: T): Signal<T> {
+export function newSignal<T>(data: T): NonEmptySignal<T> {
   const nonce = clock++
   const self = {
     state: "data",
