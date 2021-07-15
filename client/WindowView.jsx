@@ -5,6 +5,7 @@ import {useRef, useState} from "react"
 import {css} from "emotion"
 import type {Wrapper} from "./useModel.js"
 import type {NonEmptySignal} from "./signal.js"
+import {WINDOW_HEAD_HEIGHT_PX} from "./global-constants.js"
 
 export type WindowViewModel =
   | Loading
@@ -72,7 +73,14 @@ export function WindowView(props: {|
         value={v.urlBar}
         onChange={e => props.onUrlEdited(e.target.value)}
         onKeyDown={e => e.keyCode === 13 && props.onNavigationRequested()}
-        style={{width: "100%", boxSizing: "border-box"}}
+        className={css(styles.input)}
+        style={{
+          position: "absolute",
+          width: "calc(100% - 6px)",
+          boxSizing: "border-box",
+          left: "3px",
+          bottom: "3px",
+        }}
       />
     </WindowHead>
     <div style={{position: "relative"}}>
@@ -90,7 +98,7 @@ export function WindowView(props: {|
       }
     </div>
     <LeftDragHandle
-      height={height + 44}
+      height={height + WINDOW_HEAD_HEIGHT_PX}
       onDrag={dx => props.onMoveLeftEdge(dx, 0)}
     />
   </div>
@@ -133,7 +141,7 @@ function ClickInterceptor(props: {|onClick: () => mixed|}): React.Node {
     style={{
       position: "absolute",
       inset: 0,
-      top: -44,
+      top: -WINDOW_HEAD_HEIGHT_PX,
     }}
   />
 }
@@ -171,6 +179,8 @@ const styles = {
     background: "#ddd",
   },
   windowHead: css`
+    position: relative;
+    height: ${WINDOW_HEAD_HEIGHT_PX}px;
     background: linear-gradient(to bottom, #eee, #ccc);
     border-top: 1px solid #fff;
     border-radius: 4px 4px 0 0;
@@ -196,6 +206,14 @@ const styles = {
     left: -4px;
     width: 7px;
     cursor: ew-resize;
+  `,
+  input: css`
+    border-top:    1px solid #707070;
+    border-left:   1px solid #808080;
+    border-bottom: 1px solid #989898;
+    border-right:  1px solid #909090;
+    border-radius: 3px;
+    box-shadow: inset 0 1px 5px #0002;
   `,
 }
 
