@@ -1,7 +1,7 @@
 // @flow
 import * as React from "react"
 import {css} from "emotion"
-import {DesktopController} from "./WindowController.jsx"
+import {DesktopController} from "./DesktopController.jsx"
 import {
   MENU_BAR_HEIGHT_PX,
   BOTTOM_LETTERBOX_HEIGHT_PX,
