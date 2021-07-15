@@ -15,32 +15,24 @@ import {
   BOTTOM_LETTERBOX_HEIGHT_PX,
 } from "./global-constants.js"
 import {cryptoRandomHex} from "./cryptoRandomHex.js"
+import {sequence} from "./sequence.js"
 
-function newWindowStack() {
-  let windows: Array<Window> = [newWindow("http://example.com", 0)]
-  let altitudeOfFocusedWindow = windows[0].getAltitude()
+const increment: number => number = a => a + 1
+
+function newDesktop() {
+  const altitudeSequence = sequence(0, increment)
+  let windows: Array<Window> = [newWindow("http://example.com", altitudeSequence)]
   return {
     addWindow,
     getWindows,
-    focus,
   }
 
   function addWindow(url: string) {
-    windows = [...windows, newWindow(url, ++altitudeOfFocusedWindow)]
+    windows = [...windows, newWindow(url, altitudeSequence)]
   }
 
-  function getWindows(): Array<{|window: Window, focused: boolean|}> {
-    return windows.map((window, i, all) => {
-      return {window, focused: window.getAltitude() === altitudeOfFocusedWindow}
-    })
-  }
-
-  function focus(windowId: string) {
-    for (const w of windows) if (w.getId() === windowId) {
-      altitudeOfFocusedWindow++
-      w.setAltitude(altitudeOfFocusedWindow)
-      break;
-    }
+  function getWindows(): Array<Window> {
+    return windows
   }
 }
 
@@ -52,7 +44,7 @@ type Window = {
   getWidth(): number,
   getHeight(): number,
   getAltitude(): number,
-  setAltitude(number): void,
+  focus(): void,
   noticeScreenDimensions(number, number): void,
   moveLeftEdge(number, number): void,
   getUrlBarText(): string,
@@ -61,9 +53,11 @@ type Window = {
   getNavigationViaUrlBar(): NonEmptySignal<string>,
 }
 
-function newWindow(initialUrl: string, altitude: number): Window {
+function newWindow(initialUrl: string, nextAltitude: () => number): Window {
   const id = cryptoRandomHex(20)
-  let x = 60, y = 60
+  let altitude = 0
+  focus()
+  let x = 60, y = 60 // position of the top left corner
   let width = 1024, height = 600
   let screenWidth = 1024, screenHeight = 768
   let urlBar = ""
@@ -75,7 +69,8 @@ function newWindow(initialUrl: string, altitude: number): Window {
     nudge,
     getX, getY,
     getWidth, getHeight,
-    getAltitude, setAltitude,
+    getAltitude,
+    focus,
     noticeScreenDimensions,
     moveLeftEdge,
     getUrlBarText,
@@ -94,7 +89,7 @@ function newWindow(initialUrl: string, altitude: number): Window {
   }
 
   function getX(): number {
-    if (x < -1004) return -1004 // FIXME
+    if (x < -width + 20) return -width + 20
     if (x > screenWidth - 20) return screenWidth - 20
     return x
   }
@@ -118,8 +113,8 @@ function newWindow(initialUrl: string, altitude: number): Window {
     return altitude
   }
 
-  function setAltitude(a: number) {
-    altitude = a
+  function focus() {
+    altitude = nextAltitude()
   }
 
   function noticeScreenDimensions(width: number, height: number) {
@@ -144,13 +139,16 @@ function newWindow(initialUrl: string, altitude: number): Window {
   }
 
   function navigate() {
-    console.log("navigating", urlBar)
     navigationViaUrlBar = newSignal(httpify(urlBar))
   }
 }
 
-export function WindowStackController(): React.Node {
-  const [windowStack, withUpdate] = useModel(newWindowStack)
+function max(xs: Array<number>): number {
+  return xs.reduce((top, x) => Math.max(top, x), -Infinity)
+}
+
+export function DesktopController(): React.Node {
+  const [windowStack, withUpdate] = useModel(newDesktop)
   useCrossFrameMessages(msg => {
     switch (msg.data.type) {
       case "path-os-open-window": {
@@ -158,14 +156,15 @@ export function WindowStackController(): React.Node {
       }
     }
   })
+  const windows = windowStack.getWindows()
+  const maxAltitude = max(windows.map(w => w.getAltitude()))
   return <>
-    {windowStack.getWindows().map(({window, focused}) =>
+    {windows.map(window =>
       <WindowController
-        key={window.getId()}
         window={window}
-        focused={focused}
+        focused={window.getAltitude() === maxAltitude}
         withUpdate={withUpdate}
-        onFocusRequested={id => withUpdate(windowStack.focus)(id)}
+        onFocusRequested={withUpdate(window.focus)}
       />
     )}
   </>
@@ -179,9 +178,10 @@ export function WindowController(props: {|
 |}): React.Node {
   const {window, withUpdate, focused, onFocusRequested} = props
   useCrossFrameMessages(msg => {
+    const windowId = window.getId()
     switch (msg.data.type) {
       case "document-metadata": {
-        if (msg.data.re === window.getId()) {
+        if (msg.data.re === windowId) {
           withUpdate(window.changeUrlBarText)(msg.data.url)
         }
         break;
@@ -190,7 +190,7 @@ export function WindowController(props: {|
         break;
       }
       default: {
-        console.log("received cross-window message", msg)
+        console.debug("received cross-window message", msg)
       }
     }
   })

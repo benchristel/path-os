@@ -7,18 +7,8 @@ import type {Wrapper} from "./useModel.js"
 import type {NonEmptySignal} from "./signal.js"
 
 export type WindowViewModel =
-  | BrandNew
   | Loading
   | Loaded
-
-type BrandNew = {|
-  state: "brand-new",
-  id: string,
-  urlBar: string,
-  focused: boolean,
-  zIndex: number,
-  ...SizeAndPosition,
-|}
 
 type Loading = {|
   state: "loading",
@@ -30,10 +20,6 @@ type Loading = {|
   ...SizeAndPosition,
 |}
 
-// A window transitions to Loaded state once we've injected
-// our code into it and received a message that confirms the
-// document is ready and tells us the canonical URL of the
-// page.
 type Loaded = {|
   state: "loaded",
   id: string,
@@ -74,7 +60,7 @@ export function WindowView(props: {|
   const {width, height, top, left, zIndex} = v
 
   return <div
-    style={{width, top, left, zIndex, position: ""}}
+    style={{width, top, left, zIndex}}
     className={css(styles.windowFrame)}
     key={v.id}
   >
@@ -229,12 +215,9 @@ type DraggableCallbacks<E: HTMLElement> = {|
   onPointerMove: MouseEvent => mixed,
 |}
 
-type DraggableOptions = {|
-  onDrag: (dx: number, dy: number) => mixed,
-  lock?: ?("horizontal" | "vertical"),
-|}
-
-function useDraggableBehavior<E: HTMLElement>(options: DraggableOptions): DraggableCallbacks<E> {
+function useDraggableBehavior<E: HTMLElement>(
+  options: {|onDrag: (dx: number, dy: number) => mixed|},
+): DraggableCallbacks<E> {
   const el = useRef(null)
   const [isDragging, setDragging] = useState(false)
   return {
