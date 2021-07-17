@@ -7,4 +7,4 @@ export const MENU_BAR_HEIGHT_PX: number = 21
 // hover
 export const BOTTOM_LETTERBOX_HEIGHT_PX: number = 22
 
-export const WINDOW_HEAD_HEIGHT_PX: number = 44
+export const WINDOW_HEAD_HEIGHT_PX: number = 48

@@ -24,11 +24,14 @@ export function newDesktop(): Desktop {
   }
 
   function addWindow(url: string) {
-    windows = [...windows, newWindow(url, altitudeSequence)]
+    windows = [
+      ...getWindows(),
+      newWindow(url, altitudeSequence),
+    ]
   }
 
   function getWindows(): Array<Window> {
-    return windows
+    return windows.filter(w => !w.isClosed())
   }
 }
 
@@ -53,7 +56,7 @@ export function DesktopController(): React.Node {
         window={window}
         focused={window.getAltitude() === maxAltitude}
         withUpdate={withUpdate}
-        onFocusRequested={withUpdate(window.focus)}
+        key={window.getId()}
       />
     )}
   </>

@@ -93,23 +93,26 @@ export type Window = {
   goBack(): void,
   getImposedNavigation(): NonEmptySignal<string>,
   noticeNewUrl(string): void,
+  isClosed(): boolean,
+  close(): void,
 }
 
 export function newWindow(initialUrl: string, nextAltitude: () => number): Window {
   const id = cryptoRandomHex(20)
   let altitude = 0
-  focus()
   let x = 60, y = 60 // position of the top left corner
   let width = 1024, height = 600
   let screenWidth = 1024, screenHeight = 768
   let urlBar = ""
   let history: History = newHistory(initialUrl)
+  let closed = false
   // imposedNavigation updates whenever the browser chrome
   // initiates navigation (e.g. via the "back" button, or
   // the user typing a URL and hitting "enter"). As opposed
   // to navigation that arises "organically" from clicking
   // a hyperlink.
   let imposedNavigation = newSignal(initialUrl)
+  focus()
   return {
     getId,
     nudge,
@@ -125,6 +128,8 @@ export function newWindow(initialUrl: string, nextAltitude: () => number): Windo
     goBack,
     getImposedNavigation,
     noticeNewUrl,
+    isClosed,
+    close,
   }
 
   function getId(): string {
@@ -162,6 +167,7 @@ export function newWindow(initialUrl: string, nextAltitude: () => number): Windo
   }
 
   function focus() {
+    if (closed) return;
     altitude = nextAltitude()
   }
 
@@ -200,5 +206,13 @@ export function newWindow(initialUrl: string, nextAltitude: () => number): Windo
   function noticeNewUrl(url: string) {
     urlBar = url
     history.add(urlBar)
+  }
+
+  function isClosed() {
+    return closed
+  }
+
+  function close() {
+    closed = true
   }
 }

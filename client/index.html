@@ -91,6 +91,14 @@
         font-size: 14px;
       }
     </style>
+    <script>
+function trace(label, f) {
+  return (...args) => {
+    console.debug("trace", label, ...args)
+    return f(...args)
+  }
+}
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -10,9 +10,8 @@ export function WindowController(props: {|
   window: Window,
   withUpdate: Wrapper,
   focused: boolean,
-  onFocusRequested: (id: string) => mixed,
 |}): React.Node {
-  const {window, withUpdate, focused, onFocusRequested} = props
+  const {window, withUpdate, focused} = props
   useCrossFrameMessages(msg => {
     const windowId = window.getId()
     switch (msg.data.type) {
@@ -24,9 +23,6 @@ export function WindowController(props: {|
       }
       case "hover-link": {
         break;
-      }
-      default: {
-        console.debug("received cross-window message", msg)
       }
     }
   })
@@ -54,13 +50,13 @@ export function WindowController(props: {|
         handleWillUnload: () => console.log("unloading")
       },
     }}
-    onFocusRequested={onFocusRequested}
+    onFocusRequested={withUpdate(window.focus)}
     onUrlEdited={withUpdate(window.changeUrlBarText)}
     onNavigationRequested={withUpdate(window.navigate)}
     onBackButtonClicked={withUpdate(window.goBack)}
     onMove={withUpdate(window.nudge)}
     onMoveLeftEdge={withUpdate(window.moveLeftEdge)}
-    key={window.getId()}
+    onCloseRequested={withUpdate(window.close)}
   />
 }
 
