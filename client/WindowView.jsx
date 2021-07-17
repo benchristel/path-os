@@ -5,6 +5,7 @@ import {useRef, useState} from "react"
 import {css} from "emotion"
 import type {Wrapper} from "./useModel.js"
 import type {NonEmptySignal} from "./signal.js"
+import {useDraggableBehavior} from "./useDraggableBehavior.js"
 import {WINDOW_HEAD_HEIGHT_PX} from "./global-constants.js"
 
 export type WindowViewModel =
@@ -66,21 +67,12 @@ export function WindowView(props: {|
     key={v.id}
   >
     <WindowHead>
-      <Handle
-        onDrag={props.onMove}
-      />
+      <Handle onDrag={props.onMove}/>
       <input
         value={v.urlBar}
         onChange={e => props.onUrlEdited(e.target.value)}
         onKeyDown={e => e.keyCode === 13 && props.onNavigationRequested()}
-        className={css(styles.input)}
-        style={{
-          position: "absolute",
-          width: "calc(100% - 6px)",
-          boxSizing: "border-box",
-          left: "3px",
-          bottom: "3px",
-        }}
+        className={css(styles.input, styles.urlBar)}
       />
     </WindowHead>
     <div style={{position: "relative"}}>
@@ -166,10 +158,14 @@ function LeftDragHandle(props: {|
   />
 }
 
-const trace: Wrapper = (f => (...args) => {
-  console.log("trace", ...args)
-  return f(...args)
-}: any)
+function Handle(props: {|
+  onDrag: (dx: number, dy: number) => mixed,
+|}): React.Node {
+  return <div
+    style={{width: "100%", height: 22, borderRadius: "4px 4px 0 0", boxSizing: "border-box"}}
+    {...useDraggableBehavior<HTMLDivElement>({onDrag: props.onDrag})}
+  />
+}
 
 const styles = {
   windowFrame: {
@@ -208,48 +204,22 @@ const styles = {
     cursor: ew-resize;
   `,
   input: css`
-    border-top:    1px solid #707070;
+    /* border-top:    1px solid #707070;
     border-left:   1px solid #808080;
     border-bottom: 1px solid #989898;
-    border-right:  1px solid #909090;
+    border-right:  1px solid #909090; */
+    border-top:    1px solid #0007;
+    border-left:   1px solid #0006;
+    border-bottom: 1px solid #ffffff08;
+    border-right:  1px solid #fff1;
     border-radius: 3px;
     box-shadow: inset 0 1px 5px #0002;
   `,
-}
-
-function Handle(props: {|
-  onDrag: (dx: number, dy: number) => mixed,
-|}): React.Node {
-  return <div
-    style={{width: "100%", height: 22, borderRadius: "4px 4px 0 0", boxSizing: "border-box"}}
-    {...useDraggableBehavior<HTMLDivElement>({onDrag: props.onDrag})}
-  />
-}
-
-type DraggableCallbacks<E: HTMLElement> = {|
-  ref: ?E => mixed,
-  onPointerDown: SyntheticPointerEvent<E> => mixed,
-  onPointerUp: SyntheticPointerEvent<E> => mixed,
-  onPointerMove: MouseEvent => mixed,
-|}
-
-function useDraggableBehavior<E: HTMLElement>(
-  options: {|onDrag: (dx: number, dy: number) => mixed|},
-): DraggableCallbacks<E> {
-  const el = useRef(null)
-  const [isDragging, setDragging] = useState(false)
-  return {
-    ref: _el => el.current = _el,
-    onPointerDown: e => {
-      setDragging(true)
-      el.current?.setPointerCapture(e.pointerId)
-    },
-    onPointerUp: e => {
-      setDragging(false)
-      el.current?.releasePointerCapture(e.pointerId)
-    },
-    onPointerMove: e => {
-      if (isDragging) options.onDrag(e.movementX, e.movementY)
-    }
-  }
+  urlBar: {
+    position: "absolute",
+    width: "calc(100% - 6px)",
+    boxSizing: "border-box",
+    left: "3px",
+    bottom: "3px",
+  },
 }
