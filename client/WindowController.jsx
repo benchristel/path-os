@@ -18,7 +18,7 @@ export function WindowController(props: {|
     switch (msg.data.type) {
       case "document-metadata": {
         if (msg.data.re === windowId) {
-          withUpdate(window.changeUrlBarText)(msg.data.url)
+          withUpdate(window.noticeNewUrl)(msg.data.url)
         }
         break;
       }
@@ -49,7 +49,7 @@ export function WindowController(props: {|
       focused: focused,
       zIndex: window.getAltitude(),
       iframe: {
-        src: window.getNavigationViaUrlBar(),
+        src: window.getImposedNavigation(),
         handleLoaded: establishCommsWithIframe(window.getId()),
         handleWillUnload: () => console.log("unloading")
       },
@@ -57,6 +57,7 @@ export function WindowController(props: {|
     onFocusRequested={onFocusRequested}
     onUrlEdited={withUpdate(window.changeUrlBarText)}
     onNavigationRequested={withUpdate(window.navigate)}
+    onBackButtonClicked={withUpdate(window.goBack)}
     onMove={withUpdate(window.nudge)}
     onMoveLeftEdge={withUpdate(window.moveLeftEdge)}
     key={window.getId()}
