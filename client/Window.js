@@ -9,6 +9,7 @@ import {
   MENU_BAR_HEIGHT_PX,
   BOTTOM_LETTERBOX_HEIGHT_PX,
 } from "./global-constants.js"
+import type {Point} from "./Point.js"
 
 interface History {
   add(url: string): void,
@@ -79,8 +80,7 @@ test("history", {
 export type Window = {
   getId(): string,
   nudge(dx: number, dy: number): void,
-  getX(): number,
-  getY(): number,
+  getPosition(): Point,
   getWidth(): number,
   getHeight(): number,
   getAltitude(): number,
@@ -97,11 +97,15 @@ export type Window = {
   close(): void,
 }
 
-export function newWindow(initialUrl: string, nextAltitude: () => number): Window {
+export function newWindow(
+  initialUrl: string,
+  initialPosition: Point,
+  nextAltitude: () => number,
+): Window {
   const id = cryptoRandomHex(20)
+  let [x, y] = initialPosition
   let altitude = 0
-  let x = 60, y = 60 // position of the top left corner
-  let width = 1024, height = 600
+  let width = 1024, height = 800
   let screenWidth = 1024, screenHeight = 768
   let urlBar = ""
   let history: History = newHistory(initialUrl)
@@ -116,7 +120,7 @@ export function newWindow(initialUrl: string, nextAltitude: () => number): Windo
   return {
     getId,
     nudge,
-    getX, getY,
+    getPosition,
     getWidth, getHeight,
     getAltitude,
     focus,
@@ -139,6 +143,10 @@ export function newWindow(initialUrl: string, nextAltitude: () => number): Windo
   function nudge(dx: number, dy: number) {
     x += dx
     y += dy
+  }
+
+  function getPosition(): Point {
+    return [getX(), getY()]
   }
 
   function getX(): number {

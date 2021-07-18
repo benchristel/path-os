@@ -3,7 +3,6 @@ import * as React from "react"
 import {css} from "emotion"
 import {DesktopController} from "./DesktopController.jsx"
 import {
-  MENU_BAR_HEIGHT_PX,
   BOTTOM_LETTERBOX_HEIGHT_PX,
 } from "./global-constants.js"
 import {ClockController} from "./Clock.jsx"
@@ -37,7 +36,7 @@ export function PathOs(): React.Node {
 
 const desktop = css`
   display: block;
-  height: calc(100vh - ${MENU_BAR_HEIGHT_PX}px);
+  height: calc(100vh - ${BOTTOM_LETTERBOX_HEIGHT_PX}px);
   position: relative;
   background: linear-gradient(to bottom, #0008, #0000 50px), url('galaxy-cropped.png');
   background-size: cover;
@@ -46,6 +45,6 @@ const desktop = css`
 `
 
 const footer = css`
-  height: ${MENU_BAR_HEIGHT_PX}px;
+  height: ${BOTTOM_LETTERBOX_HEIGHT_PX}px;
   background: black;
 `

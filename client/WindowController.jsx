@@ -40,8 +40,7 @@ export function WindowController(props: {|
       urlBar: window.getUrlBarText(),
       height: window.getHeight(),
       width: window.getWidth(),
-      top: window.getY(),
-      left: window.getX(),
+      position: window.getPosition(),
       focused: focused,
       zIndex: window.getAltitude(),
       iframe: {

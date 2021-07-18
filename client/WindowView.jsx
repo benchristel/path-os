@@ -7,6 +7,7 @@ import type {Wrapper} from "./useModel.js"
 import type {NonEmptySignal} from "./signal.js"
 import {useDraggableBehavior} from "./useDraggableBehavior.js"
 import {WINDOW_HEAD_HEIGHT_PX} from "./global-constants.js"
+import type {Point} from "./Point.js"
 
 export type WindowViewModel =
   | Loading
@@ -35,8 +36,7 @@ type Loaded = {|
 type SizeAndPosition = {|
   width: number,
   height: number,
-  top: number,
-  left: number,
+  position: Point,
 |}
 
 type IFrameViewModel = {|
@@ -61,7 +61,7 @@ export function WindowView(props: {|
   onCloseRequested: () => mixed
 |}): React.Node {
   const {v} = props
-  const {width, height, top, left, zIndex} = v
+  const {width, height, position: [left, top], zIndex} = v
 
   function focus() {
     !v.focused && props.onFocusRequested()
