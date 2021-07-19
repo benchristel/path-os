@@ -86,7 +86,9 @@ export type Window = {
   getAltitude(): number,
   focus(): void,
   noticeScreenDimensions(number, number): void,
-  moveLeftEdge(number, number): void,
+  moveLeftEdge(dx: number): void,
+  moveRightEdge(dx: number): void,
+  moveBottomEdge(dy: number): void,
   getUrlBarText(): string,
   changeUrlBarText(string): void,
   navigate(): void,
@@ -126,6 +128,8 @@ export function newWindow(
     focus,
     noticeScreenDimensions,
     moveLeftEdge,
+    moveRightEdge,
+    moveBottomEdge,
     getUrlBarText,
     changeUrlBarText,
     navigate,
@@ -183,9 +187,17 @@ export function newWindow(
     [screenWidth, screenHeight] = [width, height]
   }
 
-  function moveLeftEdge(dx: number, dy: number) {
+  function moveLeftEdge(dx: number) {
     x += dx
     width -= dx
+  }
+
+  function moveRightEdge(dx: number) {
+    width += dx
+  }
+
+  function moveBottomEdge(dy: number) {
+    height += dy
   }
 
   function getUrlBarText(): string {

@@ -53,7 +53,9 @@ type DocumentMetadata = {|
 export function WindowView(props: {|
   v: WindowViewModel,
   onMove: (dx: number, dy: number) => mixed,
-  onMoveLeftEdge: (dx: number, dHeight: number) => mixed,
+  onMoveLeftEdge: (dx: number) => mixed,
+  onMoveRightEdge: (dx: number) => mixed,
+  onMoveBottomEdge: (dy: number) => mixed,
   onUrlEdited: string => mixed,
   onNavigationRequested: () => mixed,
   onFocusRequested: () => mixed,
@@ -96,9 +98,32 @@ export function WindowView(props: {|
       }
       {!v.focused && <ClickInterceptor onClick={focus}/>}
     </div>
-    <LeftDragHandle
+    <VerticalDragHandle
       height={height + WINDOW_HEAD_HEIGHT_PX}
-      onDrag={dx => props.onMoveLeftEdge(dx, 0)}
+      className={styles.leftDragHandle}
+      onDrag={props.onMoveLeftEdge}
+    />
+    <HorizontalDragHandle
+      onDrag={props.onMoveBottomEdge}
+    />
+    <VerticalDragHandle
+      height={height + WINDOW_HEAD_HEIGHT_PX}
+      className={styles.rightDragHandle}
+      onDrag={props.onMoveRightEdge}
+    />
+    <CornerDragHandle
+      className={styles.bottomLeftDragHandle}
+      onDrag={(dx, dy) => {
+        props.onMoveLeftEdge(dx)
+        props.onMoveBottomEdge(dy)
+      }}
+    />
+    <CornerDragHandle
+      className={styles.bottomRightDragHandle}
+      onDrag={(dx, dy) => {
+        props.onMoveRightEdge(dx)
+        props.onMoveBottomEdge(dy)
+      }}
     />
   </div>
 }
@@ -144,14 +169,36 @@ function ClickInterceptor(props: {|onClick: () => mixed|}): React.Node {
   />
 }
 
-function LeftDragHandle(props: {|
+function VerticalDragHandle(props: {|
   height: number,
-  onDrag: (dx: number, dy: number) => mixed,
+  onDrag: (dx: number) => mixed,
+  className: mixed,
 |}): React.Node {
-  const {height, onDrag} = props
+  const {height, onDrag, className} = props
   return <div
     style={{height}}
-    className={styles.leftDragHandle}
+    className={className}
+    {...useDraggableBehavior({onDrag})}
+  />
+}
+
+function HorizontalDragHandle(props: {|
+  onDrag: (dy: number) => mixed,
+|}): React.Node {
+  const onDrag = (_, dy) => props.onDrag(dy)
+  return <div
+    className={styles.bottomDragHandle}
+    {...useDraggableBehavior({onDrag})}
+  />
+}
+
+function CornerDragHandle(props: {|
+  className: mixed,
+  onDrag: (dx: number, dy: number) => mixed,
+|}): React.Node {
+  const {className, onDrag} = props
+  return <div
+    className={className}
     {...useDraggableBehavior({onDrag})}
   />
 }
@@ -177,7 +224,9 @@ function Button(props: {|
     style={{...styles.button, ...props.style}}
     onClick={props.onClick}
     onMouseDown={props.onMouseDown}
-  >{props.children}</button>
+  >
+    {props.children}
+  </button>
 }
 
 const styles = {
@@ -208,6 +257,36 @@ const styles = {
     left: -4px;
     width: 7px;
     cursor: ew-resize;
+  `,
+  rightDragHandle: css`
+    position: absolute;
+    top: 0;
+    right: -4px;
+    width: 7px;
+    cursor: ew-resize;
+  `,
+  bottomDragHandle: css`
+    position: absolute;
+    bottom: -4px;
+    width: 100%;
+    height: 7px;
+    cursor: ns-resize;
+  `,
+  bottomLeftDragHandle: css`
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    bottom: -4px;
+    left: -4px;
+    cursor: nesw-resize;
+  `,
+  bottomRightDragHandle: css`
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    bottom: -4px;
+    right: -4px;
+    cursor: nwse-resize;
   `,
   input: css`
     border-top:    1px solid #666;

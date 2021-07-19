@@ -11,6 +11,8 @@ import {DesktopView} from "./DesktopView.jsx"
 import {unreachable} from "./unreachable.js"
 import type {Point} from "./Point.js"
 
+const HOMEPAGE = "https://duckduckgo.com"
+
 const increment: number => number = a => a + 1
 
 export type Desktop = {|
@@ -95,7 +97,9 @@ export function DesktopController(): React.Node {
   })
   const windows = desktop.getWindows()
   const focusedWindow = desktop.getFocusedWindow()
-  return <DesktopView onOpenWindowRequested={withUpdate(() => desktop.addWindow("https://duckduckgo.com", {type: "default"}))}>
+  return <DesktopView
+    onOpenWindowRequested={withUpdate(() => desktop.addWindow(HOMEPAGE, {type: "default"}))}
+  >
     {windows.map(window =>
       <WindowController
         window={window}

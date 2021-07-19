@@ -41,8 +41,8 @@ export function WindowController(props: {|
       height: window.getHeight(),
       width: window.getWidth(),
       position: window.getPosition(),
-      focused: focused,
       zIndex: window.getAltitude(),
+      focused,
       iframe: {
         src: window.getImposedNavigation(),
         handleLoaded: establishCommsWithIframe(window.getId()),
@@ -55,6 +55,8 @@ export function WindowController(props: {|
     onBackButtonClicked={withUpdate(window.goBack)}
     onMove={withUpdate(window.nudge)}
     onMoveLeftEdge={withUpdate(window.moveLeftEdge)}
+    onMoveRightEdge={withUpdate(window.moveRightEdge)}
+    onMoveBottomEdge={withUpdate(window.moveBottomEdge)}
     onCloseRequested={withUpdate(window.close)}
   />
 }
