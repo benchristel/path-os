@@ -2,9 +2,9 @@
 
 ![screenshot of iana.org in a Path OS browser window](screenshot.png)
 
-Path is an "operating system frontend" that runs in webkit
-browsers like Chrome and Safari. Its goal is to provide a
-desktop computing experience that can:
+Path is an "operating system frontend" that runs in WebKit
+browsers like Vivaldi, Chrome, and Safari. Its goal is to
+provide a desktop computing experience that can:
 
 - support real human life with a UI that incorporates
   properties of [living structure](https://www.livingneighborhoods.org/ht-0/fifteen.htm).
@@ -36,10 +36,13 @@ knows what else lurking. So just don't.
 
 ## Installation (Mac OS)
 
-- Install Google Chrome
-- Open Chrome's `Info.plist`, which should be somewhere
-  like `'/Applications/Google Chrome.app/Contents/Info.plist'`.
-  Add the following inside the `<dict>` element inside `<plist>`:
+- **Install [Vivaldi](https://vivaldi.com)**.
+- **Hide the MacOS menu bar and dock when Vivaldi is
+  fullscreened.** Open Vivaldi's `Info.plist`, which should
+  be somewhere like
+  `'/Applications/Vivaldi.app/Contents/Info.plist'`.
+  Add the following inside the `<dict>` element inside
+  `<plist>`:
 
   ```xml
   <key>LSUIPresentationMode</key>
@@ -47,24 +50,33 @@ knows what else lurking. So just don't.
   ```
 
   This hides the menu bar, dock, and window title bar when
-  Chrome is in focus.
+  Vivaldi is in focus. You must restart Vivaldi for this
+  change to take effect.
 
-- Clone this repository.
-- Enable Chrome's developer mode.
-- Load the extension in `extension/` as an unpacked extension.
-- Load the theme in `theme/` as an unpacked extension.
+  NOTE: You will have to do this again every time Vivaldi
+  updates itself, it seems. :( It's also kind of glitchy:
+  the menu bar will show itself if you tab away from
+  Vivaldi and back again. The workaround is to restart
+  Vivaldi.
+
+- Clone this repository:
+  `git clone https://github.com/benchristel/path-os`
+- Go to vivaldi://extensions in Vivaldi.
+- Enable developer mode.
+- Load the extension in `extension/` as an unpacked
+  extension.
 - Build the client: `(cd client && yarn && yarn run snowpack
   build)` (assuming you already have node and yarn
   installed).
 - Install Go, then run the server: `go run server/main.go`.
-- Navigate to http://localhost:1234 in Chrome.
+- Navigate to http://localhost:1234 in Vivaldi.
 - For best results, fullscreen the browser window using
-  ctrl+cmd+F. If the tabs and URL bar still show up,
-  shift+cmd+F should hide them.
+  `ctrl+cmd+F`. If the tabs and URL bar still show up,
+  press `cmd+F10` to hide them.
 
 ## Development
 
-### Server
+### Auto-Reloading
 
 Most of the time during development, you don't care about
 modifying the server code, and you'd like to have changes
