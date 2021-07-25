@@ -58,9 +58,13 @@ const css = `
 
 ::-webkit-scrollbar-thumb:horizontal {
   background:
+    linear-gradient(to right, #0000, #0001 7px, #0000 14px),
     linear-gradient(to bottom, #6af 10%, #fff4 20%, #6af 30%, #9ef),
     linear-gradient(to right, #6af 5px, #6af0 10px),
     linear-gradient(to left, #6af 5px, #6af0 10px);
+  background-size: 14px 100%, 100% 100%, 100% 100%, 100% 100%;
+  background-repeat: repeat, no-repeat, no-repeat, no-repeat;
+  background-position: 7px 0, 0 0, 0 0, 0 0;
   border: 1px solid #ccc;
   box-sizing: border-box;
   box-shadow: inset 0 0 4px #004;
