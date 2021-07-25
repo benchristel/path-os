@@ -2,11 +2,15 @@
 
 import * as React from "react"
 import {useRef, useState} from "react"
-import {css} from "emotion"
+import {css} from "./css.js"
 import type {Wrapper} from "./useModel.js"
 import type {NonEmptySignal} from "./signal.js"
 import {useDraggableBehavior} from "./useDraggableBehavior.js"
-import {WINDOW_HEAD_HEIGHT_PX} from "./global-constants.js"
+import {
+  WINDOW_HEAD_HEIGHT_PX,
+  GROOVE_HIGHLIGHT,
+  RECESS_SHADOW,
+} from "./global-constants.js"
 import type {Point} from "./Point.js"
 
 export type WindowViewModel =
@@ -71,13 +75,23 @@ export function WindowView(props: {|
 
   return <div
     style={{width, top, left, zIndex}}
-    className={css(styles.windowFrame)}
+    className="Window"
     key={v.id}
   >
     <WindowHead>
-      <Handle onDrag={props.onMove} onMouseDown={focus}/>
-      <Button onClick={props.onCloseRequested} style={styles.closeButton}> </Button>
-      <Button onClick={props.onBackButtonClicked} style={styles.backButton} onMouseDown={focus}>
+      <Handle
+        onDrag={props.onMove}
+        onMouseDown={focus}
+      />
+      <Button
+        onClick={props.onCloseRequested}
+        className="close"
+      />
+      <Button
+        onClick={props.onBackButtonClicked}
+        onMouseDown={focus}
+        className="back"
+      >
         ◀︎
       </Button>
       <input
@@ -85,41 +99,39 @@ export function WindowView(props: {|
         onMouseDown={focus}
         onChange={e => props.onUrlEdited(e.target.value)}
         onKeyDown={e => e.keyCode === 13 && props.onNavigationRequested()}
-        className={css(styles.input, styles.urlBar)}
+        className="UrlBar"
       />
     </WindowHead>
     <div style={{position: "relative"}}>
       {
         v.iframe && <WindowPane
           iframe={v.iframe}
-          height={height}
+          height={height - WINDOW_HEAD_HEIGHT_PX}
           focused={v.focused}
         />
       }
       {!v.focused && <ClickInterceptor onClick={focus}/>}
     </div>
-    <VerticalDragHandle
-      height={height + WINDOW_HEAD_HEIGHT_PX}
-      className={styles.leftDragHandle}
+    <SideDragHandle
+      className="left"
       onDrag={props.onMoveLeftEdge}
     />
-    <HorizontalDragHandle
+    <BottomDragHandle
       onDrag={props.onMoveBottomEdge}
     />
-    <VerticalDragHandle
-      height={height + WINDOW_HEAD_HEIGHT_PX}
-      className={styles.rightDragHandle}
+    <SideDragHandle
+      className="right"
       onDrag={props.onMoveRightEdge}
     />
     <CornerDragHandle
-      className={styles.bottomLeftDragHandle}
+      className="bottomLeft"
       onDrag={(dx, dy) => {
         props.onMoveLeftEdge(dx)
         props.onMoveBottomEdge(dy)
       }}
     />
     <CornerDragHandle
-      className={styles.bottomRightDragHandle}
+      className="bottomRight"
       onDrag={(dx, dy) => {
         props.onMoveRightEdge(dx)
         props.onMoveBottomEdge(dy)
@@ -131,7 +143,7 @@ export function WindowView(props: {|
 function WindowHead(props: {|
   children: React.Node
 |}): React.Node {
-  return <div className={styles.windowHead}>
+  return <div className="Head">
     {props.children}
   </div>
 }
@@ -145,7 +157,6 @@ function WindowPane(props: {|
   return <iframe
     key={iframe.src.nonce}
     src={iframe.src.data}
-    className={css(styles.iframe)}
     style={{height}}
     onLoad={iframe.handleLoaded}
     sandbox={[
@@ -169,36 +180,34 @@ function ClickInterceptor(props: {|onClick: () => mixed|}): React.Node {
   />
 }
 
-function VerticalDragHandle(props: {|
-  height: number,
+function SideDragHandle(props: {|
   onDrag: (dx: number) => mixed,
-  className: mixed,
+  className: string,
 |}): React.Node {
-  const {height, onDrag, className} = props
+  const {onDrag, className} = props
   return <div
-    style={{height}}
-    className={className}
+    className={"sideDragHandle " + className}
     {...useDraggableBehavior({onDrag})}
   />
 }
 
-function HorizontalDragHandle(props: {|
+function BottomDragHandle(props: {|
   onDrag: (dy: number) => mixed,
 |}): React.Node {
   const onDrag = (_, dy) => props.onDrag(dy)
   return <div
-    className={styles.bottomDragHandle}
+    className="bottomDragHandle"
     {...useDraggableBehavior({onDrag})}
   />
 }
 
 function CornerDragHandle(props: {|
-  className: mixed,
+  className: string,
   onDrag: (dx: number, dy: number) => mixed,
 |}): React.Node {
   const {className, onDrag} = props
   return <div
-    className={className}
+    className={"cornerDragHandle " + className}
     {...useDraggableBehavior({onDrag})}
   />
 }
@@ -215,127 +224,150 @@ function Handle(props: {|
 }
 
 function Button(props: {|
-  children: React.Node,
+  children?: React.Node,
   onClick: () => mixed,
   onMouseDown?: ?() => mixed,
-  style: Object,
+  className: string,
 |}): React.Node {
   return <button
-    style={{...styles.button, ...props.style}}
     onClick={props.onClick}
     onMouseDown={props.onMouseDown}
+    className={"button " + props.className || "default"}
   >
     {props.children}
   </button>
 }
 
-const styles = {
-  windowFrame: {
-    position: "absolute",
-    boxShadow: "0 3px 30px #000c",
-    borderRadius: "4px 4px 0 0",
-    background: "#ddd",
-  },
-  windowHead: css`
+css`
+  .Window {
+    position: absolute;
+    box-shadow: 0 3px 30px #000c;
+    border-radius: 4px 4px 0 0;
+    background: #ddd;
+  }
+
+  .Window .Head {
     position: relative;
     height: ${WINDOW_HEAD_HEIGHT_PX}px;
     background: linear-gradient(to bottom, #eee, #aaa);
-    border-top: 1px solid #fff;
     border-radius: 4px 4px 0 0;
+    border-top: 1px solid #fff;
     border-bottom: 1px solid #666;
-  `,
-  iframe: {
-    // Without `display: block`, the iframe adds extra
-    // margin beneath it.
-    display: "block",
-    border: "none",
-    width: "100%",
-  },
-  leftDragHandle: css`
+  }
+
+  .Window iframe {
+    /* Without 'display: block', the iframe adds extra
+     * margin beneath it. */
+    display: block;
+    border: none;
+    width: 100%;
+  }
+
+  .Window .sideDragHandle {
     position: absolute;
     top: 0;
+    bottom: 0;
+    width: 7px;
+    cursor: ew-resize;
+  }
+
+  .Window .left.sideDragHandle {
     left: -4px;
-    width: 7px;
-    cursor: ew-resize;
-  `,
-  rightDragHandle: css`
-    position: absolute;
-    top: 0;
+  }
+
+  .Window .right.sideDragHandle {
     right: -4px;
-    width: 7px;
-    cursor: ew-resize;
-  `,
-  bottomDragHandle: css`
+  }
+
+  .Window .bottomDragHandle {
     position: absolute;
     bottom: -4px;
     width: 100%;
     height: 7px;
     cursor: ns-resize;
-  `,
-  bottomLeftDragHandle: css`
+  }
+
+  .Window .cornerDragHandle {
     position: absolute;
     width: 10px;
     height: 10px;
+  }
+
+  .Window .bottomLeft.cornerDragHandle {
     bottom: -4px;
     left: -4px;
     cursor: nesw-resize;
-  `,
-  bottomRightDragHandle: css`
-    position: absolute;
-    width: 10px;
-    height: 10px;
+  }
+
+  .Window .bottomRight.cornerDragHandle {
     bottom: -4px;
     right: -4px;
     cursor: nwse-resize;
-  `,
-  input: css`
+  }
+
+  .close.button {
+    position: absolute;
+    top: 3px;
+    left: 6px;
+    height: 14px;
+    width: 14px;
+    padding: 0;
+    box-sizing: border-box;
+    border: 1px solid #222;
+    border-radius: 100px;
+    background:
+      linear-gradient(120deg, #f00, #f000 35%), linear-gradient(-120deg, #f00, #f000 35%),
+      linear-gradient(to bottom, #f00 0%, #faa 20%, #d00 30%, #f88 90%);
+    box-shadow: inset 0 0 3px #0009, ${GROOVE_HIGHLIGHT};
+  }
+
+  .back.button {
+    position: absolute;
+    left: 6px;
+    width: 38px;
+    height: 20px;
+    bottom: 6px;
+    border-radius: 3px 0 0 3px;
+  }
+
+  .button {
+    font-size: 10px;
+    color: #444;
+    text-shadow: 0 1px #fff6;
+    background: linear-gradient(to bottom, #fff3, #00000018);
+    border: 1px solid #666;
+    border-radius: 3px;
+    box-shadow: inset ${GROOVE_HIGHLIGHT}, ${GROOVE_HIGHLIGHT};
+    cursor: pointer;
+  }
+
+  .back.button:active {
+    background: #0001;
+    box-shadow: ${RECESS_SHADOW}, ${GROOVE_HIGHLIGHT};
+  }
+
+  .close.button:active {
+    box-shadow: inset 0 0 5px #000d, ${GROOVE_HIGHLIGHT};
+  }
+
+  input {
     border-top:    1px solid #666;
     border-left:   1px solid #808080;
     border-bottom: 1px solid #777;
     border-right:  1px solid #909090;
     border-radius: 3px;
     box-shadow: inset 0 1px 5px #0002, 1px 1px #fff6;
-  `,
-  urlBar: {
-    position: "absolute",
-    width: "calc(100% - 50px)",
-    height: "20px",
-    boxSizing: "border-box",
-    left: "43px",
-    bottom: "6px",
-    borderRadius: "0 3px 3px 0",
-    paddingLeft: "4px",
-  },
-  button: {
-    fontSize: "10px",
-    color: "#444",
-    textShadow: "0 1px #fff6",
-    background: "linear-gradient(to bottom, #fff3, #00000018)",
-    border: "1px solid #666",
-    borderRadius: "3px",
-    boxShadow: "inset 1px 1px #fff7, 1px 1px #fff6",
-    cursor: "pointer",
-  },
-  backButton: {
-    position: "absolute",
-    left: "6px",
-    width: "38px",
-    height: "20px",
-    lineHeight: "18px",
-    bottom: "6px",
-    borderRadius: "3px 0 0 3px",
-  },
-  closeButton: {
-    position: "absolute",
-    top: "3px",
-    left: "6px",
-    height: "14px",
-    width: "14px",
-    padding: "0",
-    boxSizing: "border-box",
-    border: "1px solid #222",
-    borderRadius: "100px",
-    background: "linear-gradient(120deg, #f00, #f000 35%), linear-gradient(-120deg, #f00, #f000 35%), linear-gradient(to bottom, #f00 0%, #faa 20%, #d00 30%, #f88 90%)",
-    boxShadow: "inset 0 0 3px #0009, 1px 1px #fff6"
   }
-}
+
+  input.UrlBar {
+    position: absolute;
+    width: calc(100% - 48px);
+    height: 20px;
+    box-sizing: border-box;
+    left: 42px;
+    bottom: 6px;
+    border-radius: 0 3px 3px 0;
+    border-left: 1px solid #666;
+    padding-left: 4px;
+  }
+`

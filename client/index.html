@@ -103,5 +103,11 @@ function trace(label, f) {
   <body>
     <div id="root"></div>
     <script>document.body.oncontextmenu = () => false</script>
+    <script type="module">
+      import {css} from "./css.js"
+      const styleEl = document.createElement("style")
+      styleEl.innerText = window.cssDeclarations.join("\n")
+      document.head.appendChild(styleEl)
+    </script>
   </body>
 </html>

@@ -86,11 +86,18 @@ ${this.verb}
   }
 }
 
-type Textualizable = string | number | boolean | null | void
+type Textualizable = string | number | boolean | null | void | Array<Textualizable>
+
+function equals<T: Textualizable>(a: T, b: T): boolean {
+  if (Array.isArray(a) && Array.isArray(b)) {
+    return a.every((elem, i) => equals(elem, b[i]))
+  }
+  return a === b
+}
 
 export function toEqual<T: Textualizable>(expected: T): Matcher<T> {
   function matches(actual: T): boolean {
-    return actual === expected
+    return equals(expected, actual)
   }
   matches.verb = "to equal"
   matches.expected = expected
@@ -116,6 +123,7 @@ export function not<T: Textualizable>(matcher: Matcher<T>): Matcher<T> {
 }
 
 function textualize(t: Textualizable): string {
+  if (Array.isArray(t))       return `[${t.map(textualize).join(", ")}]`
   if (typeof t === "string")  return `"${escape(t)}"`
   if (typeof t === "number")  return String(t)
   if (typeof t === "boolean") return String(t)
