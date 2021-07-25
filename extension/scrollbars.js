@@ -38,6 +38,7 @@ const css = `
     linear-gradient(to top, #6af 5px, #6af0 10px);
   background-size: 100% 14px, 100% 100%, 100% 100%, 100% 100%;
   background-repeat: repeat, no-repeat, no-repeat, no-repeat;
+  background-position: 0 7px, 0 0, 0 0, 0 0;
   background-clip: content-box;
   border: 1px solid transparent;
   position: relative;
