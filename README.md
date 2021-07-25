@@ -74,6 +74,14 @@ knows what else lurking. So just don't.
   `ctrl+cmd+F`. If the tabs and URL bar still show up,
   press `cmd+F10` to hide them.
 
+## Okay, I'm staring at a picture of a galaxy. What now?
+
+Right-click anywhere on the desktop background to open a
+window. From there, you can browse as normal.
+
+Command+clicking a link opens it in a new window. Note that
+Path OS doesn't have tabs... yet.
+
 ## Development
 
 ### Auto-Reloading
