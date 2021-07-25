@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import {BOTTOM_LETTERBOX_HEIGHT_PX} from "./global-constants.js"
-import {css} from "emotion"
+import {css} from "./css.js"
 
 export function DesktopView(props: {|
   children: React.Node,
@@ -15,12 +15,13 @@ export function DesktopView(props: {|
     return false
   }
 
-  return <main className={desktop} onMouseDown={handleRightClick}>
+  return <main className="Desktop" onMouseDown={handleRightClick}>
     {props.children}
   </main>
 }
 
-const desktop = css`
+css`
+.Desktop {
   display: block;
   height: calc(100vh - ${BOTTOM_LETTERBOX_HEIGHT_PX}px);
   position: relative;
@@ -28,4 +29,5 @@ const desktop = css`
   background-size: cover;
   background-position: center;
   overflow: hidden;
+}
 `

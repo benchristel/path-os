@@ -1,6 +1,6 @@
 // @flow
 import * as React from "react"
-import {css} from "emotion"
+import {css} from "./css.js"
 import {DesktopController} from "./DesktopController.jsx"
 import {
   BOTTOM_LETTERBOX_HEIGHT_PX,
@@ -28,11 +28,13 @@ export function PathOs(): React.Node {
         </div>
       </div>
     </header>
-    <footer className={css(footer)}/>
+    <footer className="Letterbox"/>
   </>
 }
 
-const footer = css`
+css`
+.Letterbox {
   height: ${BOTTOM_LETTERBOX_HEIGHT_PX}px;
   background: black;
+}
 `
