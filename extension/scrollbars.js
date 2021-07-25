@@ -1,7 +1,15 @@
 const css = `
 ::-webkit-scrollbar {
-  background: linear-gradient(to right, #aaa, #fff 20%, #aaa);
+  background: #eee;
   cursor: default;
+}
+
+::-webkit-scrollbar:vertical {
+  border-left: 1px solid #bbb;
+}
+
+::-webkit-scrollbar:horizontal {
+  border-top: 1px solid #bbb;
 }
 
 ::-webkit-scrollbar-track:vertical {
@@ -85,7 +93,7 @@ const css = `
 }
 
 ::-webkit-scrollbar-corner {
-  background: linear-gradient(to right, #ccc, #fff 20%, #ddd);
+  background: linear-gradient(135deg, #fff 50%, #ddd);
 }`
 
 const newStyleElement = document.createElement("style")
