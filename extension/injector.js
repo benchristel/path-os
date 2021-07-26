@@ -15,7 +15,7 @@
 
   let pathOsHost = null
   const allowedMessageOrigins = [
-    "http://localhost:1234",
+    "http://localhost:1221",
     "http://localhost:8080"
   ]
 

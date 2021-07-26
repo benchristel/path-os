@@ -69,7 +69,7 @@ knows what else lurking. So just don't.
   build)` (assuming you already have node and yarn
   installed).
 - Install Go, then run the server: `go run server/main.go`.
-- Navigate to http://localhost:1234 in Vivaldi.
+- Navigate to http://localhost:1221 in Vivaldi.
 - For best results, fullscreen the browser window using
   `ctrl+cmd+F`. If the tabs and URL bar still show up,
   press `cmd+F10` to hide them.

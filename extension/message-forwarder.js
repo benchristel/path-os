@@ -1,7 +1,7 @@
 chrome.runtime.onMessage.addListener((message, sender) => {
   pathOsHosts = [
     "http://localhost:8080/",
-    "http://localhost:1234/",
+    "http://localhost:1221/",
   ]
 
   if (pathOsHosts.includes(window.location.href)) {

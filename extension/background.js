@@ -62,8 +62,8 @@ const tabIdsMovedToPathOs = {}
   const pathOsHosts = [
     "http://localhost:8080",
     "http://localhost:8080/",
-    "http://localhost:1234",
-    "http://localhost:1234/",
+    "http://localhost:1221",
+    "http://localhost:1221/",
   ]
 
   function isPathOs(url) {
