@@ -45,6 +45,11 @@ function browser() {
   )
 }
 
+// TODO: memory leak
+// this can probably be replaced with a ring buffer or
+// something that will have bounded memory requirements.
+const tabIdsMovedToPathOs = {}
+
 {
   /**
    * Listen for new tabs getting opened and move them to
@@ -61,13 +66,17 @@ function browser() {
     "http://localhost:1234/",
   ]
 
+  function isPathOs(url) {
+    return pathOsHosts.includes(url)
+  }
+
   const pathOsTabsByWindowId = {}
 
   function registerPathOsTab(tabId, _, tab) {
-    console.log("tab updated", tab)
+    console.log("registerPathOsTab", tab)
     const url = tab.url || tab.pendingUrl
 
-    if (!pathOsHosts.includes(url)) {
+    if (!isPathOs(url)) {
       unregisterPathOsTab(tab.id)
       return;
     }
@@ -79,16 +88,22 @@ function browser() {
   }
 
   function moveTabToPathOs(tab) {
-    console.log("tab created", tab, pathOsTabsByWindowId)
+    console.log("moveTabToPathOs", tab)
+    if (tabIdsMovedToPathOs[tab.id]) return;
+
     const url = tab.url || tab.pendingUrl
+    if (!url || isPathOs(url)) return;
+
     const pathOsTabInSameWindow = pathOsTabsByWindowId[tab.windowId]
-    if (pathOsTabInSameWindow) {
-      browser().tabs.sendMessage(pathOsTabInSameWindow.id, {
-        type: "path-os-open-window",
-        url,
-      })
-      browser().tabs.remove(tab.id)
-    }
+    if (!pathOsTabInSameWindow) return;
+
+    console.log(url, tab.url, tab.pendingUrl)
+    browser().tabs.sendMessage(pathOsTabInSameWindow.id, {
+      type: "path-os-open-window",
+      url,
+    })
+    browser().tabs.remove(tab.id)
+    tabIdsMovedToPathOs[tab.id] = true
   }
 
   function unregisterPathOsTab(tabId) {
@@ -101,6 +116,7 @@ function browser() {
   }
 
   browser().tabs.onUpdated.addListener(registerPathOsTab)
+  browser().tabs.onUpdated.addListener((_1, _2, tab) => moveTabToPathOs(tab))
   browser().tabs.onCreated.addListener(moveTabToPathOs)
   browser().tabs.onRemoved.addListener(unregisterPathOsTab)
 }
